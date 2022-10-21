@@ -1,0 +1,64 @@
+Create a new public repository to share with Roland (public)
+
+# P-roblem
+
+We have to create a game, called Hangman, where we are going to play vs the computer, the computer is going to select a random word from a list on a text file
+and we have to try to guess it, the words only content letters. We have to choice any letter what we want and if that letter is in the word the computer has to show 
+the word showing the letter that we have guessed in the correct order and substitute the letters that are still unknown for a dash. If we choice a letter that doesnt
+exist on that word, the computer has to show a message saying "That word doesn't appear" and the word showing the letters already guessed and dashes. 
+At the beggining of the player's turn the game has to show the number of remaining guesses and the letters already used. The game is going to end if the player 
+wins (he guess all the letters) or if the player looses (guesses = 0). game starts with 8 guesses)
+
+# E-xample
+
+1 Welcome message with some instructions...whats your name
+Player has to select his/her name
+
+2 The word to guess is this:
+#show word with dashes instead of letter
+
+3 Player turn
+letters used = []
+guesses = 8
+input letter
+if not letter or repeated: wrong input guesses = , try again
+  input a letter
+until letter = some letter
+
+elsif letter (YES) : nice the letter is correct -1 guess
+  show word with letters and dashes(play_again?)
+  winner? You win
+else
+  incorrect letter -1 guess
+  more_guesses? You loose (play_again?)
+
+
+# D-ata structure # A-lgorithm
+
+string for the word - subs with regex or method to show the word
+integer for number of guesses
+array for letters used
+
+# C-ode
+
+Pseudocode step 2
+
+
+
+                  METHODS
+OBJECTS: GAME:     start the game
+         COMPUTER: select_random_word, winner?, looser?, display_word_situation, welcome message, bye message, play_again, ask_letter, ask_name, say_guesses 
+         PLAYER:   select_letter
+
+
+Class Name, Collaborators, Responsabilities
+
+
+
+
+*HAVE A MAIN GAME CLASS WITH THE STEP (IS THIS THE BEST APPROACH?)
+*HOW TO CHOOSE THE BEST PATTERN (RECOMMENDATIONS TO READ/EXAMPLES)
+
+
+*REVIEW OBJECTS, VARIABLES @@, SCOOPE, ETC,...(Launch)
+*
