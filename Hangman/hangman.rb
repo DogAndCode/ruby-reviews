@@ -1,15 +1,22 @@
-# frozen_string_literal: true
+        # PONER EL COUNTER A CERO DE ALGUNA MANERA PARA QUE SE IGUALEN
+        # SALVAR EL JUGO EN YAML Y JSON
+        # REFACTORIZAR
+        # SUBIRLO GIT Y DECIRSELO A ROLI
+        # COMPARARLO CON EL ANTERIOR QUE HICE
 
 system 'clear'
+
+require "yaml"
 
 class Game
   def initialize
     @player = Player.new
-    @word
+    @word = ""
     @guesses = 15
     @used_letters = []
     @looser = false
     @winner = false
+    @counter = 0
   end
 
   def welcome
@@ -28,12 +35,11 @@ class Game
 
   def show_hidden_word
     puts 'This is the word you have to guess: '
-    counter = 1
     @word.split(//).each do |letter|
       if @used_letters.include?(letter)
         print letter
-        counter += 1
-        @winner = true if @word.length == counter
+        @counter += 1
+        @winner = true if @word.length == @counter
       else
         print '_ '
       end
@@ -63,11 +69,28 @@ class Game
   end
 
   def looser?
-    if @guesses.negative?
+    if @guesses <= 0
       @looser = true
       puts 'NO MORE GUESSES, YOU LOST'
       puts "The word was: #{@word}"
     end
+  end
+
+  def start
+    welcome
+    ask_player_name
+    random_word
+    until @winner || @looser
+      show_hidden_word
+      if @winner == true
+        puts "You WON"
+        break
+      end
+      player_letter_choice
+      looser?
+      @counter = 0
+    end
+    play_again?
   end
 
   def play_again?
@@ -75,19 +98,6 @@ class Game
     puts 'Do you wanna play again?(y/n)'
     answer = gets.chomp.downcase
     answer == 'y' ? Game.new.start : puts('Thank you. See you soon!')
-  end
-
-  def start
-    welcome
-    ask_player_name
-    random_word
-    while @winner == false && @looser == false
-      show_hidden_word
-      player_letter_choice
-      looser?
-    end
-    winner? if @winner == true
-    play_again?
   end
 end
 
