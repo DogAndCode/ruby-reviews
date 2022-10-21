@@ -1,100 +1,86 @@
-        # PONER EL COUNTER A CERO DE ALGUNA MANERA PARA QUE SE IGUALEN
-        # SALVAR EL JUGO EN YAML Y JSON
-        # REFACTORIZAR
-        # SUBIRLO GIT Y DECIRSELO A ROLI
-        # COMPARARLO CON EL ANTERIOR QUE HICE
-
+# REFACTORIZAR
+# SALVAR EL JUEGO EN YAML Y JSON
+# SUBIRLO GIT Y DECIRSELO A ROLI
+# COMPARARLO CON EL ANTERIOR QUE HICE
 system 'clear'
 
-require "yaml"
-
 class Game
+  attr_accessor :word, :used_letters, :winner, :guesses, :hidden_word, :looser
+
   def initialize
     @player = Player.new
-    @word = ""
+    @word = ''
     @guesses = 15
     @used_letters = []
     @looser = false
     @winner = false
-    @counter = 0
-  end
-
-  def welcome
-    puts '### WELCOME to THE HANGMAN GAME!! ###', '### You have 8 attempts ###', '### GOOD LUCK! ###', ''
   end
 
   def ask_player_name
-    puts "What's your name?"
+    puts '### WELCOME to THE HANGMAN GAME!! ###', '### You have 8 attempts ###', '### GOOD LUCK! ###', '', "What's your name?"
     @player.name = gets.chomp
     puts '', "Nice to meet you #{@player.name}"
   end
 
   def random_word
     @word = File.readlines('words_list.txt', chomp: true).sample
+    @hidden_word = word.clone
   end
 
   def show_hidden_word
     puts 'This is the word you have to guess: '
-    @word.split(//).each do |letter|
-      if @used_letters.include?(letter)
-        print letter
-        @counter += 1
-        @winner = true if @word.length == @counter
-      else
-        print '_ '
-      end
+    hidden_word.split("").each do |letter|
+      used_letters.include?(letter) ? hidden_word.gsub!(letter, letter) : hidden_word.gsub!(letter, '_ ')
     end
-    puts ' ', "\nLetters used: #{@used_letters}", "Remaining guesses: #{@guesses}"
+    puts hidden_word
+    show_stats
+  end
+  
+  def show_stats
+    puts ' ', "\nLetters used: #{used_letters}", "Remaining guesses: #{guesses}"
+  end
+
+  def compare_word_with_hidden_word
+    hidden_word == word ? winner = true : nil
   end
 
   def player_letter_choice
     puts 'Choose a letter: '
     letter = gets.chomp.downcase
-    if @used_letters.include?(letter)
+    if used_letters.include?(letter)
       puts '', 'Repeated, choose a different one'
     elsif letter.length > 1
       puts 'ONLY ONE LETTER. Try again!'
     elsif letter =~ /[a-z]/
-      @used_letters << letter
-      @guesses -= 1
+      used_letters << letter
+      self.guesses -= 1
     else
       puts 'Wrong choice. ONLY LETTERS allowed', ''
     end
   end
 
   def winner?
-    system 'clear'
-    puts "The word is: #{@word}"
-    puts '', 'CONGRATULATIONS, you WON!'
+    puts "The word is: #{word}", '', 'CONGRATULATIONS, you WON!'
   end
 
   def looser?
-    if @guesses <= 0
-      @looser = true
-      puts 'NO MORE GUESSES, YOU LOST'
-      puts "The word was: #{@word}"
+    if guesses <= 0
+      looser = true
+      puts 'NO MORE GUESSES, YOU LOST', "The word was: #{word}"
     end
   end
 
   def start
-    welcome
     ask_player_name
     random_word
-    until @winner || @looser
-      show_hidden_word
-      if @winner == true
-        puts "You WON"
-        break
-      end
-      player_letter_choice
-      looser?
-      @counter = 0
-    end
+    show_hidden_word
+    compare_word_with_hidden_word # ESTAS ORDENANDO, VAS POR AQUI, MOMENTO DE LOOP CONDICIONAL PARA PODER JUGAR
+    player_letter_choice
+    looser?
     play_again?
   end
 
   def play_again?
-    play_again = ''
     puts 'Do you wanna play again?(y/n)'
     answer = gets.chomp.downcase
     answer == 'y' ? Game.new.start : puts('Thank you. See you soon!')
@@ -109,5 +95,4 @@ class Player
   end
 end
 
-game = Game.new
-game.start
+Game.new.start
