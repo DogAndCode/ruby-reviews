@@ -1,23 +1,20 @@
-# REFACTORIZAR
-# SALVAR EL JUEGO EN YAML Y JSON
-# SUBIRLO GIT Y DECIRSELO A ROLI
-# COMPARARLO CON EL ANTERIOR QUE HICE
+
 system 'clear'
 
 class Game
-  attr_accessor :word, :used_letters, :winner, :guesses, :hidden_word, :looser
+  attr_accessor :word, :used_letters, :winner_or_looser, :guesses
 
   def initialize
     @player = Player.new
     @word = ''
-    @guesses = 15
+    @guesses = 12
     @used_letters = []
-    @looser = false
-    @winner = false
+    @winner_or_looser = false
   end
 
   def ask_player_name
-    puts '### WELCOME to THE HANGMAN GAME!! ###', '### You have 8 attempts ###', '### GOOD LUCK! ###', '', "What's your name?"
+    puts '### WELCOME to THE HANGMAN GAME!! ###', '### You have 8 attempts ###', '### GOOD LUCK! ###', '',
+         "What's your name?"
     @player.name = gets.chomp
     puts '', "Nice to meet you #{@player.name}"
   end
@@ -29,28 +26,23 @@ class Game
 
   def show_hidden_word
     puts 'This is the word you have to guess: '
-    hidden_word.split("").each do |letter|
-      used_letters.include?(letter) ? hidden_word.gsub!(letter, letter) : hidden_word.gsub!(letter, '_ ')
+    word.split('').each do |letter|
+      used_letters.include?(letter) ? print(letter) : print('_ ')
     end
-    puts hidden_word
     show_stats
   end
-  
-  def show_stats
-    puts ' ', "\nLetters used: #{used_letters}", "Remaining guesses: #{guesses}"
-  end
 
-  def compare_word_with_hidden_word
-    hidden_word == word ? winner = true : nil
+  def show_stats
+    puts "\n**Letters used: #{used_letters}", "**Remaining guesses: #{guesses}"
   end
 
   def player_letter_choice
-    puts 'Choose a letter: '
+    puts '=> Choose a letter: '
     letter = gets.chomp.downcase
     if used_letters.include?(letter)
       puts '', 'Repeated, choose a different one'
     elsif letter.length > 1
-      puts 'ONLY ONE LETTER. Try again!'
+      puts "", 'ONLY ONE LETTER. Try again!'
     elsif letter =~ /[a-z]/
       used_letters << letter
       self.guesses -= 1
@@ -59,31 +51,31 @@ class Game
     end
   end
 
-  def winner?
-    puts "The word is: #{word}", '', 'CONGRATULATIONS, you WON!'
-  end
-
-  def looser?
-    if guesses <= 0
-      looser = true
-      puts 'NO MORE GUESSES, YOU LOST', "The word was: #{word}"
+  def check_winner
+    if (word.split('').uniq - used_letters).empty?
+      self.winner_or_looser = true
+      puts "The word is: #{word}", '', 'CONGRATULATIONS, you WON!'
+    elsif guesses <= 0
+      self.winner_or_looser = true
+      puts "SORRY, you LOST. The word was: #{word}"
     end
-  end
-
-  def start
-    ask_player_name
-    random_word
-    show_hidden_word
-    compare_word_with_hidden_word # ESTAS ORDENANDO, VAS POR AQUI, MOMENTO DE LOOP CONDICIONAL PARA PODER JUGAR
-    player_letter_choice
-    looser?
-    play_again?
   end
 
   def play_again?
     puts 'Do you wanna play again?(y/n)'
     answer = gets.chomp.downcase
     answer == 'y' ? Game.new.start : puts('Thank you. See you soon!')
+  end
+
+  def start
+    ask_player_name
+    random_word
+    until winner_or_looser
+      show_hidden_word
+      player_letter_choice
+      check_winner
+    end
+    play_again?
   end
 end
 
