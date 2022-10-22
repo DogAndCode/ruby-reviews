@@ -1,5 +1,10 @@
-
+# ADD LOAD AND SAVE GAME
+# ENVIAR A GIT
+# REPASAR LO APRENDIDO
+# NEXT LESSON
 system 'clear'
+
+require "yaml"
 
 class Game
   attr_accessor :word, :used_letters, :winner_or_looser, :guesses
@@ -7,9 +12,19 @@ class Game
   def initialize
     @player = Player.new
     @word = ''
-    @guesses = 12
+    @guesses = 15
     @used_letters = []
     @winner_or_looser = false
+  end
+
+  def ask_new_or_load
+    puts "Do you want to [start] a new game or [load] a saved game?"
+    answer = gets.chomp
+    answer == "start" ? play : load_game
+  end
+
+  def load_game
+
   end
 
   def ask_player_name
@@ -20,8 +35,9 @@ class Game
   end
 
   def random_word
-    @word = File.readlines('words_list.txt', chomp: true).sample
-    @hidden_word = word.clone
+    until word.size.between?(5, 12)
+      @word = File.readlines('words_list.txt', chomp: true).sample
+    end
   end
 
   def show_hidden_word
@@ -51,7 +67,7 @@ class Game
     end
   end
 
-  def check_winner
+  def check_winner_or_looser
     if (word.split('').uniq - used_letters).empty?
       self.winner_or_looser = true
       puts "The word is: #{word}", '', 'CONGRATULATIONS, you WON!'
@@ -68,12 +84,13 @@ class Game
   end
 
   def start
+    ask_new_or_load
     ask_player_name
     random_word
     until winner_or_looser
       show_hidden_word
       player_letter_choice
-      check_winner
+      check_winner_or_looser
     end
     play_again?
   end
@@ -87,4 +104,5 @@ class Player
   end
 end
 
-Game.new.start
+game = Game.new
+game.start
