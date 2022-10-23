@@ -1,10 +1,7 @@
-# ADD LOAD AND SAVE GAME
-# ENVIAR A GIT
-# REPASAR LO APRENDIDO
-# NEXT LESSON
+
 system 'clear'
 
-require "yaml"
+require 'yaml'
 
 class Game
   attr_accessor :word, :used_letters, :winner_or_looser, :guesses
@@ -18,13 +15,35 @@ class Game
   end
 
   def ask_new_or_load
-    puts "Do you want to [start] a new game or [load] a saved game?"
+    puts 'Do you want to [start] a new game or [load] a saved game?'
     answer = gets.chomp
-    answer == "start" ? play : load_game
+    answer == 'start' ? start : load_game
   end
 
   def load_game
+    file = YAML.safe_load(File.read('saved_one.yaml'), permitted_classes: [Game, Player])
+    self.word = file['word']
+    self.guesses = file['guesses']
+    self.used_letters = file['used_letters']
+    self.winner_or_looser = file['winner_or_looser']
+    start
+  end
 
+  def ask_save_game
+    puts 'Do you wanna save the game and exit?(Y/N)'
+    answer = gets.chomp.downcase
+    save_game if answer == 'y'
+  end
+
+  def save_game
+    dump = YAML.dump(
+      'word' => word,
+      'guesses' => guesses,
+      'used_letters' => used_letters,
+      'winner_or_looser' => winner_or_looser
+    )
+    File.open('saved_one.yaml', 'w') { |file| file.write dump }
+    exit
   end
 
   def ask_player_name
@@ -35,9 +54,7 @@ class Game
   end
 
   def random_word
-    until word.size.between?(5, 12)
-      @word = File.readlines('words_list.txt', chomp: true).sample
-    end
+    @word = File.readlines('words_list.txt', chomp: true).sample until word.size.between?(5, 8)
   end
 
   def show_hidden_word
@@ -58,7 +75,7 @@ class Game
     if used_letters.include?(letter)
       puts '', 'Repeated, choose a different one'
     elsif letter.length > 1
-      puts "", 'ONLY ONE LETTER. Try again!'
+      puts '', 'ONLY ONE LETTER. Try again!'
     elsif letter =~ /[a-z]/
       used_letters << letter
       self.guesses -= 1
@@ -83,14 +100,18 @@ class Game
     answer == 'y' ? Game.new.start : puts('Thank you. See you soon!')
   end
 
-  def start
+  def play
     ask_new_or_load
+  end
+
+  def start
     ask_player_name
     random_word
     until winner_or_looser
       show_hidden_word
       player_letter_choice
       check_winner_or_looser
+      ask_save_game
     end
     play_again?
   end
@@ -105,4 +126,4 @@ class Player
 end
 
 game = Game.new
-game.start
+game.play

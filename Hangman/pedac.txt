@@ -1,4 +1,3 @@
-Create a new public repository to share with Roland (public)
 
 # P-roblem
 
@@ -44,11 +43,7 @@ array for letters used
 Pseudocode step 2
 
 
-
                   METHODS
 OBJECTS: GAME:     start the game
          ?? COMPUTER: select_random_word, winner?, looser?, display_word_situation, welcome message, bye message, play_again, ask_letter, ask_name, say_guesses 
          PLAYER:   select_letter
-
-
-Class Name, Collaborators, Responsabilities
