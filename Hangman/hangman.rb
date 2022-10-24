@@ -1,17 +1,48 @@
 
-system 'clear'
-
 require 'yaml'
 
 class Game
-  attr_accessor :word, :used_letters, :winner_or_looser, :guesses
+  attr_accessor :word, :used_letters, :win, :name
 
-  def initialize
-    @player = Player.new
+  def initialize(name="")
+    @name = name
     @word = ''
-    @guesses = 15
     @used_letters = []
-    @winner_or_looser = false
+    @win = false
+  end
+
+  def check_win
+    if (word.split('').uniq - used_letters).empty?
+      self.win = true
+      puts "The word is: #{word}", '', 'CONGRATULATIONS, you WON!'
+    elsif guesses_left <= 0
+      self.win = true
+      puts "SORRY, you LOST. The word was: #{word}"
+    end
+  end
+
+  def player_letter_choice
+    puts '=> Choose a letter: '
+    letter = gets.chomp.downcase
+    if used_letters.include?(letter)
+      puts '', 'Repeated, choose a different one'
+    elsif letter.length > 1
+      puts '', 'ONLY ONE LETTER. Try again!'
+    elsif letter =~ /[a-z]/
+      used_letters << letter
+    else
+      puts 'Wrong choice. ONLY LETTERS allowed', ''
+    end
+  end
+
+  def play_again?
+    puts 'Do you wanna play again?(y/n)'
+    answer = gets.chomp.downcase
+    answer == 'y' ? Game.new.start : puts('Thank you. See you soon!')
+  end
+
+  def guesses_left
+    15 - used_letters.size
   end
 
   def ask_new_or_load
@@ -21,11 +52,10 @@ class Game
   end
 
   def load_game
-    file = YAML.safe_load(File.read('saved_one.yaml'), permitted_classes: [Game, Player])
-    self.word = file['word']
-    self.guesses = file['guesses']
-    self.used_letters = file['used_letters']
-    self.winner_or_looser = file['winner_or_looser']
+    file = YAML.load(File.read('saved_one.yaml'))
+    self.word = file[:word]
+    self.used_letters = file[:used_letters]
+    self.win = file[:win]
     start
   end
 
@@ -37,20 +67,19 @@ class Game
 
   def save_game
     dump = YAML.dump(
-      'word' => word,
-      'guesses' => guesses,
-      'used_letters' => used_letters,
-      'winner_or_looser' => winner_or_looser
+      word: word,
+      used_letters: used_letters,
+      win: win
     )
     File.open('saved_one.yaml', 'w') { |file| file.write dump }
     exit
   end
 
   def ask_player_name
-    puts '### WELCOME to THE HANGMAN GAME!! ###', '### You have 8 attempts ###', '### GOOD LUCK! ###', '',
+    puts '### WELCOME to THE HANGMAN GAME!! ###', "### You have #{guesses_left} attempts ###", '### GOOD LUCK! ###', '',
          "What's your name?"
-    @player.name = gets.chomp
-    puts '', "Nice to meet you #{@player.name}"
+    @name = gets.chomp
+    puts '', "Nice to meet you #{@name}"
   end
 
   def random_word
@@ -66,62 +95,24 @@ class Game
   end
 
   def show_stats
-    puts "\n**Letters used: #{used_letters}", "**Remaining guesses: #{guesses}"
-  end
-
-  def player_letter_choice
-    puts '=> Choose a letter: '
-    letter = gets.chomp.downcase
-    if used_letters.include?(letter)
-      puts '', 'Repeated, choose a different one'
-    elsif letter.length > 1
-      puts '', 'ONLY ONE LETTER. Try again!'
-    elsif letter =~ /[a-z]/
-      used_letters << letter
-      self.guesses -= 1
-    else
-      puts 'Wrong choice. ONLY LETTERS allowed', ''
-    end
-  end
-
-  def check_winner_or_looser
-    if (word.split('').uniq - used_letters).empty?
-      self.winner_or_looser = true
-      puts "The word is: #{word}", '', 'CONGRATULATIONS, you WON!'
-    elsif guesses <= 0
-      self.winner_or_looser = true
-      puts "SORRY, you LOST. The word was: #{word}"
-    end
-  end
-
-  def play_again?
-    puts 'Do you wanna play again?(y/n)'
-    answer = gets.chomp.downcase
-    answer == 'y' ? Game.new.start : puts('Thank you. See you soon!')
+    puts "\n**Letters used: #{used_letters}", "**Remaining guesses_left: #{guesses_left}"
   end
 
   def play
+    system 'clear'
     ask_new_or_load
   end
 
   def start
     ask_player_name
     random_word
-    until winner_or_looser
+    until win
       show_hidden_word
       player_letter_choice
-      check_winner_or_looser
+      check_win
       ask_save_game
     end
     play_again?
-  end
-end
-
-class Player
-  attr_accessor :name
-
-  def initialize
-    @name = ''
   end
 end
 
