@@ -1,10 +1,11 @@
+# frozen_string_literal: true
 
 require 'yaml'
 
 class Game
   attr_accessor :word, :used_letters, :win, :name
 
-  def initialize(name="")
+  def initialize(name = '')
     @name = name
     @word = ''
     @used_letters = []
@@ -52,7 +53,7 @@ class Game
   end
 
   def load_game
-    file = YAML.load(File.read('saved_one.yaml'))
+    file = YAML.safe_load(File.read('saved_one.yaml'))
     self.word = file[:word]
     self.used_letters = file[:used_letters]
     self.win = file[:win]
